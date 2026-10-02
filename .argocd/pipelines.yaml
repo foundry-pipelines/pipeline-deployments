@@ -1,0 +1,55 @@
+# Bootstrap, applied once by hand: kubectl apply -n argocd -f .argocd/
+# Every top-level directory is a pipeline (rendered by foundry-pipelines CI) and becomes an
+# Application deploying it into its own namespace, named after the directory.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: pipelines
+  namespace: argocd
+spec:
+  sourceRepos: [https://gitlab.com/foundry-platform/gitops/pipeline-deployments.git]
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: pipelines
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://gitlab.com/foundry-platform/gitops/pipeline-deployments.git
+        revision: main
+        directories:
+          - path: "*"
+          - path: ".argocd"
+            exclude: true
+  template:
+    metadata:
+      name: '{{ .path.basename | lower }}'
+    spec:
+      project: pipelines
+      source:
+        repoURL: https://gitlab.com/foundry-platform/gitops/pipeline-deployments.git
+        targetRevision: main
+        path: '{{ .path.path }}'
+        directory:
+          recurse: true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .path.basename | lower }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions: [CreateNamespace=true]
+        managedNamespaceMetadata:
+          labels:
+            pod-security.kubernetes.io/enforce: restricted
