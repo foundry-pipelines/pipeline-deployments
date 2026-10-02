@@ -18,7 +18,7 @@ spec:
         app.kubernetes.io/part-of: enrichmentpipeline
       annotations:
         foundry/config-hash: 5689f271c59bdcc6
-        foundry/commit: 9c49dd75cb5b0c029bfb1d8e66e1013fa4a0972c
+        foundry/commit: 977f286d7e73a204e88009a1d2e79de8b0611e7b
     spec:
       securityContext:
         runAsNonRoot: true
@@ -26,7 +26,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: decode
-        image: registry.gitlab.com/foundry-platform/enrichers/decodingprocessor:9c49dd75
+        image: registry.gitlab.com/foundry-platform/enrichers/decodingprocessor:977f286d
         env:
         - name: DOTNET_ENVIRONMENT
           value: Production

@@ -18,7 +18,7 @@ spec:
         app.kubernetes.io/part-of: enrichmentpipeline
       annotations:
         foundry/config-hash: f8725b2e6ea9b609
-        foundry/commit: 1c1a128da84a2e6dc71ec07c3c6da9e5b61bef81
+        foundry/commit: e306ddcedc5c64298792dd2a190524ca8a0b595f
     spec:
       securityContext:
         runAsNonRoot: true
@@ -26,7 +26,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: xmltojson
-        image: registry.gitlab.com/foundry-platform/enrichers/xmltojsonprocessor:1c1a128d
+        image: registry.gitlab.com/foundry-platform/enrichers/xmltojsonprocessor:e306ddce
         env:
         - name: DOTNET_ENVIRONMENT
           value: Production
