@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: isp
+  labels:
+    app.kubernetes.io/name: isp
+    app.kubernetes.io/part-of: enrichmentpipeline
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: isp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: isp
+        app.kubernetes.io/part-of: enrichmentpipeline
+      annotations:
+        foundry/config-hash: fd03d85dc148b07c
+        foundry/commit: 31ea948bf99c3f4343e63eb74cc4568f33f71eb6
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: isp
+        image: registry.gitlab.com/foundry-platform/enrichers/ispenricher:31ea948b
+        env:
+        - name: DOTNET_ENVIRONMENT
+          value: Production
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: appsettings
+          mountPath: /app/appsettings.json
+          subPath: appsettings.json
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: appsettings
+        configMap:
+          name: isp-appsettings
+      - name: tmp
+        emptyDir: {}

@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: decode-appsettings
+  labels:
+    app.kubernetes.io/name: decode
+    app.kubernetes.io/part-of: enrichmentpipeline
+data:
+  appsettings.json: |
+    {
+      "Foundry": {
+        "Pipeline": "EnrichmentPipeline",
+        "Processor": "Decode",
+        "Input": {
+          "DataSet": "ConvertedPackets",
+          "Type": "Kafka",
+          "Config": "kafka/prod",
+          "DataSchema": "Packets",
+          "Topic": "enrichment.packets",
+          "ConnectionSettings": {
+            "Brokers": "kafka.kafka.svc.cluster.local:9092",
+            "SecurityProtocol": "PLAINTEXT"
+          }
+        },
+        "Output": {
+          "DataSet": "Output",
+          "Type": "Kafka",
+          "Config": "kafka/prod",
+          "DataSchema": "EnrichedPackets",
+          "Topic": "packets.enriched",
+          "ConnectionSettings": {
+            "Brokers": "kafka.kafka.svc.cluster.local:9092",
+            "SecurityProtocol": "PLAINTEXT"
+          }
+        }
+      }
+    }

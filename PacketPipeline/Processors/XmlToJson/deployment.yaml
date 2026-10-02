@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xmltojson
+  labels:
+    app.kubernetes.io/name: xmltojson
+    app.kubernetes.io/part-of: enrichmentpipeline
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: xmltojson
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: xmltojson
+        app.kubernetes.io/part-of: enrichmentpipeline
+      annotations:
+        foundry/config-hash: f8725b2e6ea9b609
+        foundry/commit: 1c1a128da84a2e6dc71ec07c3c6da9e5b61bef81
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: xmltojson
+        image: registry.gitlab.com/foundry-platform/enrichers/xmltojsonprocessor:1c1a128d
+        env:
+        - name: DOTNET_ENVIRONMENT
+          value: Production
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: appsettings
+          mountPath: /app/appsettings.json
+          subPath: appsettings.json
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: appsettings
+        configMap:
+          name: xmltojson-appsettings
+      - name: tmp
+        emptyDir: {}

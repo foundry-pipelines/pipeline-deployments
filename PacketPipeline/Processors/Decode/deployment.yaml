@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: decode
+  labels:
+    app.kubernetes.io/name: decode
+    app.kubernetes.io/part-of: enrichmentpipeline
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: decode
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: decode
+        app.kubernetes.io/part-of: enrichmentpipeline
+      annotations:
+        foundry/config-hash: 5689f271c59bdcc6
+        foundry/commit: 9c49dd75cb5b0c029bfb1d8e66e1013fa4a0972c
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: decode
+        image: registry.gitlab.com/foundry-platform/enrichers/decodingprocessor:9c49dd75
+        env:
+        - name: DOTNET_ENVIRONMENT
+          value: Production
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: appsettings
+          mountPath: /app/appsettings.json
+          subPath: appsettings.json
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: appsettings
+        configMap:
+          name: decode-appsettings
+      - name: tmp
+        emptyDir: {}

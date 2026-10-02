@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xmltojson-appsettings
+  labels:
+    app.kubernetes.io/name: xmltojson
+    app.kubernetes.io/part-of: enrichmentpipeline
+data:
+  appsettings.json: |
+    {
+      "Foundry": {
+        "Pipeline": "EnrichmentPipeline",
+        "Processor": "XmlToJson",
+        "Input": {
+          "DataSet": "Input",
+          "Type": "Kafka",
+          "Config": "kafka/prod",
+          "DataSchema": "XmlPackets",
+          "Topic": "raw.xml",
+          "ConnectionSettings": {
+            "Brokers": "kafka.kafka.svc.cluster.local:9092",
+            "SecurityProtocol": "PLAINTEXT"
+          }
+        },
+        "Output": {
+          "DataSet": "ConvertedPackets",
+          "Type": "Kafka",
+          "Config": "kafka/prod",
+          "DataSchema": "Packets",
+          "Topic": "enrichment.packets",
+          "ConnectionSettings": {
+            "Brokers": "kafka.kafka.svc.cluster.local:9092",
+            "SecurityProtocol": "PLAINTEXT"
+          }
+        }
+      }
+    }
